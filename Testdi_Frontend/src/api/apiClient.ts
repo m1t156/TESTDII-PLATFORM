@@ -26,7 +26,10 @@ export async function apiClient<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || "https://testdii-platform.onrender.com/api";
-  const cleanBaseUrl = rawBaseUrl.trim().replace(/\/+$/, "");
+  let cleanBaseUrl = rawBaseUrl.trim().replace(/\/+$/, "");
+  if (!cleanBaseUrl.endsWith("/api")) {
+    cleanBaseUrl = `${cleanBaseUrl}/api`;
+  }
   const formattedEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
   const primaryUrl = `${cleanBaseUrl}${formattedEndpoint}`;
   
@@ -66,6 +69,7 @@ export async function apiClient<T>(
     return (await res.json()) as T;
   } catch (primaryErr: any) {
     clearTimeout(timeoutId);
+    console.error("[apiClient] Primary fetch failed for URL:", primaryUrl, primaryErr);
 
     // Fallback: If primary URL failed and it wasn't already the direct Render URL, retry directly against live Render Backend
     const liveRenderUrl = `https://testdii-platform.onrender.com/api${formattedEndpoint}`;
@@ -84,11 +88,11 @@ export async function apiClient<T>(
           return (await retryRes.json()) as T;
         }
       } catch (retryErr) {
-        console.error("Retry to live Render backend failed:", retryErr);
+        console.error("[apiClient] Retry to live Render backend failed:", retryErr);
       }
     }
 
-    if (primaryErr.status) {
+    if (primaryErr && primaryErr.status) {
       throw primaryErr;
     }
 
@@ -98,6 +102,7 @@ export async function apiClient<T>(
     } as ApiError;
   }
 }
+
 
 
 export { API_BASE_URL };
