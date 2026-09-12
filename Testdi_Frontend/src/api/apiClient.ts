@@ -25,7 +25,10 @@ export async function apiClient<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {
-  const primaryUrl = `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+  const rawBaseUrl = process.env.NEXT_PUBLIC_API_URL || "https://testdii-platform.onrender.com/api";
+  const cleanBaseUrl = rawBaseUrl.trim().replace(/\/+$/, "");
+  const formattedEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  const primaryUrl = `${cleanBaseUrl}${formattedEndpoint}`;
   
   const token = getAuthToken();
   const headers: Record<string, string> = {
@@ -37,10 +40,9 @@ export async function apiClient<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  // Create AbortSignal timeout so requests allow Render free tier cold starts (15s)
+  // Create AbortSignal timeout for Render free tier cold starts (15s)
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 15000);
-
 
   try {
     const res = await fetch(primaryUrl, {
@@ -62,31 +64,32 @@ export async function apiClient<T>(
     }
 
     return (await res.json()) as T;
-  } catch (err: any) {
+  } catch (primaryErr: any) {
     clearTimeout(timeoutId);
 
-    // If 127.0.0.1 fails, attempt localhost fallback quickly
-    if (!API_BASE_URL.includes("localhost") && primaryUrl.includes("127.0.0.1")) {
-      const fallbackUrl = primaryUrl.replace("127.0.0.1", "localhost");
+    // Fallback: If primary URL failed and it wasn't already the direct Render URL, retry directly against live Render Backend
+    const liveRenderUrl = `https://testdii-platform.onrender.com/api${formattedEndpoint}`;
+    if (primaryUrl !== liveRenderUrl) {
       try {
-        const fallbackController = new AbortController();
-        const fallbackTimeout = setTimeout(() => fallbackController.abort(), 3000);
-        const resFallback = await fetch(fallbackUrl, {
+        const retryController = new AbortController();
+        const retryTimeout = setTimeout(() => retryController.abort(), 15000);
+        const retryRes = await fetch(liveRenderUrl, {
           ...options,
           headers,
-          signal: fallbackController.signal,
+          signal: retryController.signal,
         });
-        clearTimeout(fallbackTimeout);
-        if (resFallback.ok) {
-          return (await resFallback.json()) as T;
+        clearTimeout(retryTimeout);
+
+        if (retryRes.ok) {
+          return (await retryRes.json()) as T;
         }
-      } catch {
-        // continue to throw standard error
+      } catch (retryErr) {
+        console.error("Retry to live Render backend failed:", retryErr);
       }
     }
 
-    if (err.status) {
-      throw err;
+    if (primaryErr.status) {
+      throw primaryErr;
     }
 
     throw {
@@ -95,5 +98,6 @@ export async function apiClient<T>(
     } as ApiError;
   }
 }
+
 
 export { API_BASE_URL };
