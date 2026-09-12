@@ -36,9 +36,10 @@ export async function apiClient<T>(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  // Create AbortSignal timeout so requests fail fast (5s) instead of hanging indefinitely
+  // Create AbortSignal timeout so requests allow Render free tier cold starts (15s)
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000);
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
 
   try {
     const res = await fetch(primaryUrl, {
