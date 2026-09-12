@@ -9,7 +9,6 @@ TESTDII là ứng dụng trắc nghiệm tính cách hiện đại được thi�
 ## ✨ Tính Năng Nổi Bật (Key Features)
 
 - 🧠 **Thuật toán Phân tích 15 Chiều Không Gian (15-Dimension Vector Engine):** Đo lường chi tiết 5 nhóm mô hình tính cách (*Bản Thân, Cảm Xúc, Thái Độ, Hành Động, Xã Hội*) cùng 15 chỉ số phụ (S1-S3, E1-E3, A1-A3, AC1-AC3, SO1-SO3).
-- 🎴 **Thẻ Bài Sưu Tầm 3D Tương Tác (Interactive 3D Collectible Card):** Trải nghiệm lật thẻ 3D khám phá **DNA Tattoo String 15 cấp độ** (L/M/H) kèm hiệu ứng âm thanh sống động.
 - 📊 **Bảng Xếp Hạng Phổ Biến (Popular Scoreboard):** Cập nhật thời gian thực tỷ lệ % và số lượng người dùng khai phá từng loại hình tính cách từ MongoDB database.
 - 📖 **Bộ Khám Phá Accordion Chi Tiết (Interactive Dimension Explorer):** Tra cứu chuyên sâu ý nghĩa chỉ số High/Low và các linh thú tương thích.
 - 📱 **Giao Diện Editorial Chuẩn Mobile-First:** Phong cách thiết kế Editorial hiện đại, responsive 100% trên điện thoại và máy tính.
