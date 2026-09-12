@@ -46,7 +46,8 @@ export interface SBTIResultData {
   method?: string;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://testdii-platform.onrender.com/api";
+
 
 // Mock questions fallback in case backend server is offline
 const MOCK_QUESTIONS: Question[] = [
