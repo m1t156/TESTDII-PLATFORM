@@ -41,7 +41,7 @@ export function QuestionCard({
       </div>
 
       {/* Main Question Card */}
-      <div className="editorial-card p-6 sm:p-10 space-y-8 bg-white min-h-[360px] flex flex-col justify-between">
+      <div className="editorial-card p-6 sm:p-10 space-y-8 bg-white transition-colors duration-200 min-h-[360px] flex flex-col justify-between">
         {/* Question Text */}
         <div className="space-y-3">
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 leading-snug">
@@ -62,9 +62,9 @@ export function QuestionCard({
                 key={option.optionId}
                 type="button"
                 onClick={() => onSelectOption(option)}
-                className={`w-full text-left p-4 sm:p-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 active:scale-[0.98] ${
+                className={`w-full text-left p-4 sm:p-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer focus:outline-none active:scale-[0.98] ${
                   isSelected
-                    ? "bg-stone-900 text-white border-stone-900 shadow-sm"
+                    ? "bg-stone-900 text-white border-stone-900 shadow-sm font-semibold"
                     : "bg-stone-50/50 text-stone-800 border-stone-200 hover:border-stone-300 hover:bg-stone-100/60"
                 }`}
               >
@@ -91,7 +91,7 @@ export function QuestionCard({
             variant="ghost"
             onClick={onPrevious}
             disabled={isFirst || isSubmitting}
-            className="gap-2 text-stone-600"
+            className="gap-2 text-stone-600 hover:text-stone-900"
           >
             <ArrowLeft className="w-4 h-4" />
             Trở lại
@@ -101,7 +101,7 @@ export function QuestionCard({
             variant="primary"
             onClick={onNext}
             disabled={!selectedOptionId || isSubmitting}
-            className="gap-2"
+            className="gap-2 bg-stone-900 text-white hover:bg-stone-800 font-bold"
           >
             {isSubmitting ? (
               "Đang hoàn tất..."

@@ -68,7 +68,7 @@ export function PersonalityGallery({
             <Link
               key={item.code}
               href={`/personality/${item.code}`}
-              className="editorial-card p-4 text-center group flex flex-col items-center justify-between hover:-translate-y-1 transition duration-200"
+              className="editorial-card p-4 text-center group flex flex-col items-center justify-between hover:-translate-y-1 transition duration-200 bg-white"
             >
               <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-stone-100 border border-stone-200/60 p-2 mb-3 overflow-hidden flex items-center justify-center">
                 <Image

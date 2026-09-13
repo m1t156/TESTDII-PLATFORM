@@ -15,7 +15,7 @@ export function ResultHero({ result }: ResultHeroProps) {
   );
 
   return (
-    <div className="editorial-card p-6 sm:p-10 bg-white">
+    <div className="editorial-card p-6 sm:p-10 bg-white transition-colors duration-200">
       <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
         {/* Left Column: Character Artwork */}
         <div className="w-full md:w-1/2 flex justify-center">

@@ -22,7 +22,7 @@ export function PersonalityDetail({ character, code }: PersonalityDetailProps) {
       {/* Top Back Navigation */}
       <div>
         <Link href="/">
-          <Button variant="ghost" size="sm" className="gap-2 text-stone-600">
+          <Button variant="ghost" size="sm" className="gap-2 text-stone-600 hover:text-stone-900">
             <ArrowLeft className="w-4 h-4" />
             Trở về trang chủ
           </Button>
@@ -30,7 +30,7 @@ export function PersonalityDetail({ character, code }: PersonalityDetailProps) {
       </div>
 
       {/* Hero Section */}
-      <div className="editorial-card p-6 sm:p-10 bg-white">
+      <div className="editorial-card p-6 sm:p-10 bg-white transition-colors duration-200">
         <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
           {/* Left: Artwork */}
           <div className="w-full md:w-1/2 flex justify-center">
@@ -87,7 +87,7 @@ export function PersonalityDetail({ character, code }: PersonalityDetailProps) {
 
             <div className="pt-4">
               <Link href="/test/sbti">
-                <Button size="lg" className="w-full sm:w-auto gap-2">
+                <Button size="lg" className="w-full sm:w-auto gap-2 bg-stone-900 text-white hover:bg-stone-800 font-bold">
                   <PlayCircle className="w-5 h-5" />
                   Làm bài test để xem độ tương thích
                 </Button>

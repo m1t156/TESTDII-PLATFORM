@@ -45,7 +45,7 @@ export function ShareBar({ personalityName, result }: ShareBarProps) {
       {result && <PersonalizedShareCard result={result} />}
 
       {/* Retake Test & Quick Share Bar */}
-      <div className="editorial-card p-6 sm:p-8 bg-white text-center space-y-4">
+      <div className="editorial-card p-6 sm:p-8 bg-white transition-colors duration-200 text-center space-y-4">
         <h3 className="text-lg font-bold text-stone-900">
           Tùy chọn bổ sung & Thử lại
         </h3>
@@ -56,12 +56,12 @@ export function ShareBar({ personalityName, result }: ShareBarProps) {
         <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
           {!result && (
             <>
-              <Button variant="outline" onClick={handleCopyLink} className="gap-2">
+              <Button variant="outline" onClick={handleCopyLink} className="gap-2 text-stone-700 border-stone-300">
                 {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
                 {copied ? "Đã sao chép link!" : "Sao chép liên kết"}
               </Button>
 
-              <Button variant="secondary" onClick={handleWebShare} className="gap-2">
+              <Button variant="secondary" onClick={handleWebShare} className="gap-2 text-stone-800 bg-stone-100 border border-stone-200">
                 <Share2 className="w-4 h-4" />
                 Chia sẻ kết quả
               </Button>
@@ -69,7 +69,7 @@ export function ShareBar({ personalityName, result }: ShareBarProps) {
           )}
 
           <Link href="/test">
-            <Button variant="primary" className="gap-2">
+            <Button variant="primary" className="gap-2 bg-stone-900 hover:bg-stone-800 text-white font-bold">
               <RotateCcw className="w-4 h-4" />
               Làm lại bài test
             </Button>

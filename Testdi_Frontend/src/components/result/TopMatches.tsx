@@ -11,7 +11,7 @@ export function TopMatches({ matches }: TopMatchesProps) {
   if (!matches || matches.length === 0) return null;
 
   return (
-    <div className="editorial-card p-6 sm:p-10 space-y-6 bg-white">
+    <div className="editorial-card p-6 sm:p-10 space-y-6 bg-white transition-colors duration-200">
       <div>
         <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900">
           Các nhóm tính cách tương đồng

@@ -120,7 +120,7 @@ export default function QuizExecutionPage() {
   const selectedAnswer = answers[currentQ._id];
 
   return (
-    <div className="py-6 sm:py-12 bg-[#fafaf8]">
+    <div className="py-6 sm:py-12 bg-[#fafaf8] transition-colors duration-200">
       <QuestionCard
         question={currentQ}
         currentIndex={currentIndex}

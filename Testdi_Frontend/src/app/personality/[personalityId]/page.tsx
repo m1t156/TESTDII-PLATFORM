@@ -37,7 +37,7 @@ export default function PersonalityPage({ params }: { params: Promise<{ personal
   }
 
   return (
-    <div className="py-8 bg-[#fafaf8]">
+    <div className="py-8 bg-[#fafaf8] transition-colors duration-200">
       <PersonalityDetail character={character!} code={personalityId} />
     </div>
   );

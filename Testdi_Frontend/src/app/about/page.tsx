@@ -8,10 +8,10 @@ export const metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="py-12 px-4 max-w-5xl mx-auto space-y-16 bg-[#fafaf8]">
+    <div className="py-12 px-4 max-w-5xl mx-auto space-y-16 bg-[#fafaf8] transition-colors duration-200">
       {/* Intro section */}
       <div className="editorial-card p-8 sm:p-12 bg-white space-y-6">
-        <span className="editorial-tag">ABOUT TESTDII</span>
+        <span className="editorial-tag bg-stone-100 text-stone-800 border-stone-200">ABOUT TESTDII</span>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight">
           Về nền tảng TESTDII &amp; Phương pháp SBTI
         </h1>

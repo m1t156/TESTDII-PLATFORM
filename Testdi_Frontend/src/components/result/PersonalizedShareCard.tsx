@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import { SBTIResult } from "@/api/testApi";
 import { getWittyProfile } from "@/lib/personalityDescriptions";
@@ -15,6 +15,8 @@ import {
   Zap,
   Shield,
   Palette,
+  X,
+  Info,
 } from "lucide-react";
 
 interface PersonalizedShareCardProps {
@@ -168,12 +170,41 @@ export function PersonalizedShareCard({ result }: PersonalizedShareCardProps) {
   const [downloading, setDownloading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [activeThemeId, setActiveThemeId] = useState<string>("obsidian");
+  const [base64Image, setBase64Image] = useState<string>("");
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string>("");
 
   const code = result?.mainType?.code || "BOSS";
 
   // Memoize profile & image URL for performance
   const wittyProfile = useMemo(() => getWittyProfile(code), [code]);
   const imageUrl = useMemo(() => getCharacterImageUrl(code), [code]);
+
+  // Pre-load character image as Base64 to guarantee 100% canvas export rendering on all devices
+  useEffect(() => {
+    let isMounted = true;
+    async function preloadBase64() {
+      try {
+        const res = await fetch(imageUrl);
+        const blob = await res.blob();
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (isMounted && typeof reader.result === "string") {
+            setBase64Image(reader.result);
+          }
+        };
+        reader.readAsDataURL(blob);
+      } catch {
+        if (isMounted) setBase64Image(imageUrl);
+      }
+    }
+    if (imageUrl) {
+      preloadBase64();
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [imageUrl]);
 
   const activeTheme =
     CARD_THEMES.find((t) => t.id === activeThemeId) || CARD_THEMES[0];
@@ -214,24 +245,69 @@ export function PersonalizedShareCard({ result }: PersonalizedShareCardProps) {
     });
   }, [result]);
 
-  // Handle PNG Image Download (Ultra-Crisp 2.5x Retina Resolution)
+  // Helper function to generate clean PNG file from Card element
+  const generateCardPng = async (): Promise<{ dataUrl: string; blob: Blob; file: File }> => {
+    if (!cardRef.current) throw new Error("Card element not ready");
+    const { toPng } = await import("html-to-image");
+
+    const dataUrl = await toPng(cardRef.current, {
+      quality: 1,
+      cacheBust: true,
+      pixelRatio: 2.5,
+    });
+
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    const file = new File([blob], `TESTDII_${code}_${activeTheme.id}.png`, { type: "image/png" });
+
+    return { dataUrl, blob, file };
+  };
+
+  // Handle PNG Image Download (Multi-tier: Native Web Share -> Preview Lightbox -> Direct Download)
   const handleDownloadImage = async () => {
     if (!cardRef.current) return;
     setDownloading(true);
     try {
-      // Dynamic import to keep initial bundle size lightweight
-      const { toPng } = await import("html-to-image");
+      const { dataUrl, blob, file } = await generateCardPng();
 
-      const dataUrl = await toPng(cardRef.current, {
-        quality: 1,
-        cacheBust: true,
-        pixelRatio: 2.5, // Ultra-crisp 2.5x Retina PNG resolution for Instagram & Facebook Stories
-      });
+      const isMobile =
+        typeof window !== "undefined" &&
+        /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-      const link = document.createElement("a");
-      link.download = `TESTDII_${code}_${activeTheme.id}.png`;
-      link.href = dataUrl;
-      link.click();
+      // On Mobile: Try Web Share API (which natively shows "Save to Photos/Gallery" on iOS & Android)
+      if (
+        isMobile &&
+        typeof navigator !== "undefined" &&
+        navigator.canShare &&
+        navigator.canShare({ files: [file] })
+      ) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: `TESTDII — ${wittyProfile.name}`,
+            text: `Kết quả tính cách của tôi: ${wittyProfile.name}! Khám phá linh thú của bạn tại TESTDII:`,
+            url: window.location.href,
+          });
+          setDownloading(false);
+          return;
+        } catch (shareErr) {
+          // Fallback to preview lightbox if user cancels or share is blocked
+        }
+      }
+
+      // On Mobile (or if share fallback): Show Mobile Preview Lightbox Modal
+      if (isMobile) {
+        setPreviewImageUrl(dataUrl);
+        setPreviewModalOpen(true);
+      } else {
+        // Desktop: Direct Blob URL download
+        const blobUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = `TESTDII_${code}_${activeTheme.id}.png`;
+        link.href = blobUrl;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+      }
     } catch (err) {
       console.error("Failed to generate image card:", err);
       alert("Không thể tạo ảnh, vui lòng thử lại!");
@@ -250,43 +326,42 @@ export function PersonalizedShareCard({ result }: PersonalizedShareCardProps) {
     }
   };
 
-  // Handle Native Web Share
+  // Handle Native Web Share (Share to Story / Social apps)
   const handleNativeShare = async () => {
-    if (typeof window !== "undefined" && navigator.share) {
-      try {
-        if (cardRef.current && typeof File !== "undefined") {
-          const { toPng } = await import("html-to-image");
-          const dataUrl = await toPng(cardRef.current, { quality: 1, pixelRatio: 2.5 });
-          const res = await fetch(dataUrl);
-          const blob = await res.blob();
-          const file = new File([blob], `TESTDII_${code}.png`, { type: "image/png" });
+    setDownloading(true);
+    try {
+      if (cardRef.current) {
+        const { dataUrl, file } = await generateCardPng();
 
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              files: [file],
-              title: `TESTDII: ${wittyProfile.name}`,
-              text: `Kết quả tính cách của tôi: ${wittyProfile.name}! Khám phá linh thú của bạn tại TESTDII:`,
-              url: window.location.href,
-            });
-            return;
-          }
+        if (
+          typeof navigator !== "undefined" &&
+          navigator.canShare &&
+          navigator.canShare({ files: [file] })
+        ) {
+          await navigator.share({
+            files: [file],
+            title: `TESTDII — ${wittyProfile.name}`,
+            text: `Tôi vừa làm bài test tính cách SBTI và thuộc nhóm ${wittyProfile.name}! Thử ngay tại:`,
+            url: window.location.href,
+          });
+          return;
         }
 
-        await navigator.share({
-          title: `TESTDII: ${wittyProfile.name}`,
-          text: `Tôi vừa làm bài test tính cách SBTI và thuộc nhóm ${wittyProfile.name}! Thử ngay tại:`,
-          url: window.location.href,
-        });
-      } catch (e) {
+        // Fallback: Open preview modal for in-app browsers like Zalo / Facebook WebView
+        setPreviewImageUrl(dataUrl);
+        setPreviewModalOpen(true);
+      } else {
         handleCopyLink();
       }
-    } else {
+    } catch (e) {
       handleCopyLink();
+    } finally {
+      setDownloading(false);
     }
   };
 
   return (
-    <div className="editorial-card p-4 sm:p-10 bg-white space-y-6">
+    <div className="editorial-card p-4 sm:p-10 bg-white transition-colors duration-200 space-y-6">
       {/* Component Title & Subtitle */}
       <div className="text-center space-y-2">
         <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 flex items-center justify-center gap-2">
@@ -298,10 +373,10 @@ export function PersonalizedShareCard({ result }: PersonalizedShareCardProps) {
         </p>
       </div>
 
-      {/* Theme Color Selector Bar (Horizontal Scrollable on Mobile) */}
+      {/* Theme Color Selector Bar */}
       <div className="flex flex-col items-center space-y-2 pt-1 max-w-full">
         <span className="text-xs font-bold uppercase tracking-wider text-stone-500 flex items-center gap-1.5">
-          <Palette className="w-3.5 h-3.5" /> Chọn Theme Màu Card:
+          <Palette className="w-3.5 h-3.5 text-stone-600" /> Chọn Theme Màu Card:
         </span>
         <div className="flex items-center justify-start sm:justify-center gap-2.5 overflow-x-auto max-w-full py-1.5 px-2 rounded-2xl bg-stone-100 border border-stone-200/80 no-scrollbar">
           {CARD_THEMES.map((theme) => {
@@ -334,7 +409,7 @@ export function PersonalizedShareCard({ result }: PersonalizedShareCardProps) {
           style={{ backgroundImage: activeTheme.bgGradient }}
         >
           {/* Top Brand Header */}
-          <div className="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-3 relative z-10">
+          <div className="flex items-center justify-between border-b border-black/10 pb-3 relative z-10">
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-stone-900 text-white font-black text-xs flex items-center justify-center tracking-tighter shrink-0">
                 T2
@@ -355,15 +430,25 @@ export function PersonalizedShareCard({ result }: PersonalizedShareCardProps) {
 
           {/* Character Main Visual Frame */}
           <div className="space-y-4 text-center relative z-10">
-            <div className="mx-auto relative w-36 sm:w-44 h-36 sm:h-44 rounded-2xl overflow-hidden bg-black/10 dark:bg-stone-900/90 border border-black/10 dark:border-stone-800 p-3 shadow-lg flex items-center justify-center">
-              <Image
-                src={imageUrl}
-                alt={wittyProfile.name}
-                fill
-                sizes="(max-width: 640px) 144px, 176px"
-                className="object-contain p-2 hover:scale-105 transition-transform"
-                priority
-              />
+            <div className="mx-auto relative w-36 sm:w-44 h-36 sm:h-44 rounded-2xl overflow-hidden bg-black/10 border border-black/10 p-3 shadow-lg flex items-center justify-center">
+              {base64Image ? (
+                /* Standard img tag using Base64 URI ensures html-to-image captures character artwork 100% reliably without CORS or Next.js Image loader issues */
+                <img
+                  src={base64Image}
+                  alt={wittyProfile.name}
+                  className="w-full h-full object-contain p-2 hover:scale-105 transition-transform"
+                  crossOrigin="anonymous"
+                />
+              ) : (
+                <Image
+                  src={imageUrl}
+                  alt={wittyProfile.name}
+                  fill
+                  sizes="(max-width: 640px) 144px, 176px"
+                  className="object-contain p-2 hover:scale-105 transition-transform"
+                  priority
+                />
+              )}
             </div>
 
             <div className="space-y-1">
@@ -424,7 +509,7 @@ export function PersonalizedShareCard({ result }: PersonalizedShareCardProps) {
           </div>
 
           {/* Footer Promo CTA Slogan */}
-          <div className={`border-t border-black/10 dark:border-white/10 pt-3 flex items-center justify-between gap-2 ${activeTheme.footerText} relative z-10`}>
+          <div className={`border-t border-black/10 pt-3 flex items-center justify-between gap-2 ${activeTheme.footerText} relative z-10`}>
             <div className="flex items-center gap-1.5 text-[10px] font-medium whitespace-nowrap">
               <Shield className="w-3.5 h-3.5 opacity-70 shrink-0" />
               <span className="font-semibold">TESTDII — Khám phá bản ngã</span>
@@ -436,13 +521,13 @@ export function PersonalizedShareCard({ result }: PersonalizedShareCardProps) {
         </div>
       </div>
 
-      {/* Action Buttons Toolbar (Full Width on Mobile) */}
+      {/* Action Buttons Toolbar */}
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
         <Button
           variant="primary"
           onClick={handleDownloadImage}
           disabled={downloading}
-          className="w-full sm:w-auto min-h-[48px] justify-center gap-2 shadow-md bg-stone-900 hover:bg-stone-800 text-white"
+          className="w-full sm:w-auto min-h-[48px] justify-center gap-2 shadow-md bg-stone-900 hover:bg-stone-800 text-white font-bold"
         >
           <Download className="w-4 h-4" />
           {downloading ? "Đang tạo ảnh HD..." : "Tải Ảnh Card HD (PNG)"}
@@ -451,7 +536,8 @@ export function PersonalizedShareCard({ result }: PersonalizedShareCardProps) {
         <Button
           variant="secondary"
           onClick={handleNativeShare}
-          className="w-full sm:w-auto min-h-[48px] justify-center gap-2 text-stone-800"
+          disabled={downloading}
+          className="w-full sm:w-auto min-h-[48px] justify-center gap-2 text-stone-800 bg-stone-100 hover:bg-stone-200 border border-stone-200"
         >
           <Share2 className="w-4 h-4 text-stone-700" />
           Chia sẻ lên Story
@@ -460,12 +546,67 @@ export function PersonalizedShareCard({ result }: PersonalizedShareCardProps) {
         <Button
           variant="outline"
           onClick={handleCopyLink}
-          className="w-full sm:w-auto min-h-[48px] justify-center gap-2 text-stone-700"
+          className="w-full sm:w-auto min-h-[48px] justify-center gap-2 text-stone-700 border-stone-300"
         >
-          {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+          {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4 text-stone-600" />}
           {copied ? "Đã sao chép link!" : "Sao chép lời mời"}
         </Button>
       </div>
+
+      {/* Mobile Image Preview Lightbox Modal */}
+      {previewModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-stone-900 text-white border border-stone-800 rounded-3xl max-w-md w-full p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-amber-400" />
+                <h3 className="font-bold text-base text-white">Ảnh Card HD (Sẵn sàng lưu)</h3>
+              </div>
+              <button
+                onClick={() => setPreviewModalOpen(false)}
+                className="p-1.5 rounded-xl bg-stone-800 text-stone-400 hover:text-white transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Guide Banner for iPhone & Android */}
+            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs leading-relaxed flex items-start gap-2">
+              <Info className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
+              <span>
+                <strong>Lưu vào Thư viện (Bộ sưu tập):</strong> Bấm và <strong>nhấn giữ 1 giây</strong> vào bức ảnh bên dưới, sau đó chọn <strong>"Lưu hình ảnh"</strong> (Save Image) hoặc <strong>"Tải ảnh về máy"</strong>.
+              </span>
+            </div>
+
+            {/* High-Res Image Preview */}
+            <div className="flex justify-center p-2 bg-black/40 rounded-2xl border border-stone-800 overflow-hidden">
+              <img
+                src={previewImageUrl}
+                alt={`TESTDII ${code} Card`}
+                className="w-full max-w-[320px] rounded-xl object-contain shadow-lg"
+              />
+            </div>
+
+            {/* Actions inside Modal */}
+            <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
+              <a
+                href={previewImageUrl}
+                download={`TESTDII_${code}_${activeTheme.id}.png`}
+                className="w-full text-center py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-sm transition shadow-sm"
+              >
+                Tải xuống trực tiếp
+              </a>
+              <button
+                onClick={() => setPreviewModalOpen(false)}
+                className="w-full py-3 px-4 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold text-sm transition"
+              >
+                Đóng cửa sổ
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

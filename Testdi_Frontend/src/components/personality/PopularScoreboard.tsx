@@ -24,12 +24,12 @@ export function PopularScoreboard() {
   }, []);
 
   return (
-    <div className="editorial-card p-6 sm:p-10 bg-white border border-stone-200 space-y-8">
+    <div className="editorial-card p-6 sm:p-10 bg-white border border-stone-200 transition-colors duration-200 space-y-8">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-stone-200">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <span className="editorial-tag inline-flex items-center gap-1.5 bg-stone-100 text-stone-800">
+            <span className="editorial-tag inline-flex items-center gap-1.5 bg-stone-100 text-stone-800 border-stone-200">
               <Award className="w-3.5 h-3.5 text-amber-600" /> BẢNG XẾP HẠNG TÍNH CÁCH PHỔ BIẾN
             </span>
           </div>
@@ -42,7 +42,7 @@ export function PopularScoreboard() {
         </div>
 
         {/* Total Tests Counter Badge */}
-        <div className="shrink-0 flex items-center gap-3 px-4 py-3 rounded-2xl bg-stone-900 text-white shadow-xs">
+        <div className="shrink-0 flex items-center gap-3 px-4 py-3 rounded-2xl bg-stone-900 text-white border border-stone-800 shadow-xs">
           <Flame className="w-5 h-5 text-amber-400 animate-pulse" />
           <div>
             <span className="text-[10px] text-stone-400 font-medium uppercase tracking-wider block">
@@ -69,7 +69,7 @@ export function PopularScoreboard() {
       </div>
 
       {/* Bottom CTA Block inside Scoreboard */}
-      <div className="p-6 sm:p-8 rounded-2xl bg-stone-900 text-white flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div className="p-6 sm:p-8 rounded-2xl bg-stone-900 border border-stone-800 text-white flex flex-col sm:flex-row items-center justify-between gap-6">
         <div className="space-y-1 text-center sm:text-left">
           <h3 className="text-lg sm:text-xl font-bold">
             Bạn nằm ở vị trí nào trong Bảng Xếp Hạng?
@@ -90,4 +90,3 @@ export function PopularScoreboard() {
     </div>
   );
 }
-

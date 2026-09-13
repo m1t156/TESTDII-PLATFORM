@@ -13,7 +13,7 @@ export function ErrorState({
   onRetry,
 }: ErrorStateProps) {
   return (
-    <div className="editorial-card p-8 max-w-md mx-auto my-12 text-center space-y-4">
+    <div className="editorial-card p-8 max-w-md mx-auto my-12 text-center space-y-4 bg-white transition-colors duration-200">
       <div className="w-12 h-12 rounded-full bg-red-50 text-red-600 flex items-center justify-center mx-auto">
         <AlertCircle className="w-6 h-6" />
       </div>

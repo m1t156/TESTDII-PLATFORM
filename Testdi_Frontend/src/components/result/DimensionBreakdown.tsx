@@ -146,11 +146,11 @@ export function DimensionBreakdown({ groups }: DimensionBreakdownProps) {
   };
 
   return (
-    <div className="editorial-card p-6 sm:p-10 space-y-6 bg-white">
+    <div className="editorial-card p-6 sm:p-10 space-y-6 bg-white transition-colors duration-200">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-100 pb-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-600" />
+            <Sparkles className="w-5 h-5 text-amber-500" />
             Phân tích 5 chiều không gian tính cách
           </h2>
           <p className="text-stone-500 text-xs sm:text-sm mt-1">
@@ -302,9 +302,9 @@ export function DimensionBreakdown({ groups }: DimensionBreakdownProps) {
                     <p className="text-stone-800 text-xs sm:text-sm leading-relaxed">
                       {insightData.text}
                     </p>
-                    <p className="text-stone-600 text-xs italic pt-1 border-t border-amber-200/60 flex items-center gap-1">
-                      <Lightbulb className="w-3.5 h-3.5 text-amber-700 shrink-0 not-italic" />
-                      <span className="font-semibold not-italic">Lời khuyên phát triển:</span> {insightData.advice}
+                    <p className="text-stone-600 text-xs italic pt-1 border-t border-amber-200/60 flex items-start sm:items-center gap-1">
+                      <Lightbulb className="w-3.5 h-3.5 text-amber-700 shrink-0 not-italic mt-0.5 sm:mt-0" />
+                      <span><span className="font-semibold not-italic">Lời khuyên phát triển:</span> {insightData.advice}</span>
                     </p>
                   </div>
 
@@ -355,8 +355,8 @@ export function DimensionBreakdown({ groups }: DimensionBreakdownProps) {
                               </p>
 
                               <p className="text-stone-600 bg-white p-2 rounded border border-stone-200/60 flex items-start gap-1.5">
-                                <PlayCircle className="w-3.5 h-3.5 text-stone-600 shrink-0 mt-0.5" />
-                                <span><span className="font-semibold">Ví dụ:</span> {sub.exampleScenario}</span>
+                                <PlayCircle className="w-3.5 h-3.5 text-stone-500 shrink-0 mt-0.5" />
+                                <span><span className="font-semibold text-stone-800">Ví dụ:</span> {sub.exampleScenario}</span>
                               </p>
                             </div>
                           );

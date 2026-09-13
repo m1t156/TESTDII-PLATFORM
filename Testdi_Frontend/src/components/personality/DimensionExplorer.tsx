@@ -5,7 +5,7 @@ import { DIMENSION_GROUPS_DATA, DimensionGroup } from "@/lib/dimensionData";
 import { DimensionGroupCard } from "@/components/personality/DimensionGroupCard";
 
 export function DimensionExplorer() {
-  const [activeId, setActiveId] = useState<string | null>(null); // Default all cards collapsed
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   const toggleGroup = (id: string) => {
     setActiveId((prev) => (prev === id ? null : id));
@@ -35,4 +35,3 @@ export function DimensionExplorer() {
     </div>
   );
 }
-

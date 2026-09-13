@@ -15,7 +15,7 @@ export function Loading({ message = "Đang tải dữ liệu...", fullScreen = f
 
   if (fullScreen) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center bg-[#fafaf8] transition-colors duration-200">
         {content}
       </div>
     );

@@ -89,7 +89,7 @@ export function ResultFlipCard({ mainBear, dnaTattoo }: ResultFlipCardProps) {
               e.stopPropagation();
               handleFlip();
             }}
-            className="w-full py-2.5 rounded-xl bg-emerald-900 hover:bg-emerald-800 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+            className="w-full py-2.5 rounded-xl bg-emerald-900 hover:bg-emerald-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
           >
             <RotateCw className="w-3.5 h-3.5" /> View Collectible Card
           </button>

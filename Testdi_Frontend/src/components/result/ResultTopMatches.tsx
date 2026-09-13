@@ -8,12 +8,11 @@ interface ResultTopMatchesProps {
   topMatches?: ArchetypeMatch[];
 }
 
-
 export function ResultTopMatches({ topMatches }: ResultTopMatchesProps) {
   if (!topMatches || topMatches.length === 0) return null;
 
   return (
-    <div className="mb-12 p-6 rounded-3xl bg-white/90 border border-black/5 shadow-sm">
+    <div className="mb-12 p-6 rounded-3xl bg-white/90 border border-black/5 shadow-sm transition-colors duration-200">
       <h3 className="text-xs font-bold uppercase tracking-widest text-emerald-900 mb-4 text-center">
         Closest SBTI Personality Matches
       </h3>

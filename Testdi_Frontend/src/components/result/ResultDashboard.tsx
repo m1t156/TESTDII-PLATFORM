@@ -113,4 +113,3 @@ export default function ResultDashboard({ result, onReset }: ResultDashboardProp
     </div>
   );
 }
-

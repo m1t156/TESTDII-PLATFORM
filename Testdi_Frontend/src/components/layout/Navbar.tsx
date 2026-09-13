@@ -12,7 +12,7 @@ export default function Navbar() {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <header className="sticky top-0 z-40 bg-[#fafaf8]/90 backdrop-blur-md border-b border-stone-200/80 transition-all">
+    <header className="sticky top-0 z-40 bg-[#fafaf8]/90 backdrop-blur-md border-b border-stone-200/80 transition-colors duration-200">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2 group">
@@ -56,21 +56,23 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-3">
           <Link
             href="/test"
-            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-stone-900 rounded-lg hover:bg-stone-800 active:scale-[0.98] transition shadow-xs"
+            className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-stone-900 rounded-xl hover:bg-stone-800 active:scale-[0.98] transition shadow-xs"
           >
             Bắt đầu test
           </Link>
         </div>
 
-        {/* Mobile menu trigger */}
-        <button
-          type="button"
-          aria-label="Toggle Navigation Menu"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 rounded-lg text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition"
-        >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+        {/* Mobile controls */}
+        <div className="flex items-center gap-1 md:hidden">
+          <button
+            type="button"
+            aria-label="Toggle Navigation Menu"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 rounded-xl text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition"
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Drawer */}
@@ -105,7 +107,7 @@ export default function Navbar() {
             <Link
               href="/test"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-center py-2.5 px-4 text-center font-medium text-white bg-stone-900 rounded-lg"
+              className="w-full flex items-center justify-center py-2.5 px-4 text-center font-medium text-white bg-stone-900 rounded-xl"
             >
               Bắt đầu test
             </Link>

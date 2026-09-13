@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function TestIntroPage() {
   return (
-    <div className="py-8 bg-[#fafaf8]">
+    <div className="py-8 bg-[#fafaf8] transition-colors duration-200">
       <TestIntroCard />
     </div>
   );

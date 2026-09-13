@@ -11,10 +11,10 @@ export const metadata = {
 
 export default function HomePage() {
   return (
-    <div className="space-y-16 sm:space-y-24 pb-16 bg-[#fafaf8]">
+    <div className="space-y-16 sm:space-y-24 pb-16 bg-[#fafaf8] transition-colors duration-200">
       {/* 1. HERO SECTION */}
       <section className="relative pt-12 sm:pt-20 pb-8 px-4 max-w-4xl mx-auto text-center space-y-6">
-        <span className="editorial-tag inline-flex items-center gap-1.5">
+        <span className="editorial-tag inline-flex items-center gap-1.5 bg-stone-100 text-stone-800 border-stone-200">
           <Sparkles className="w-3.5 h-3.5 text-stone-700" /> Nền tảng khám phá tính cách SBTI
         </span>
 
@@ -28,14 +28,14 @@ export default function HomePage() {
 
         <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link href="/test" className="w-full sm:w-auto">
-            <Button size="lg" className="w-full sm:w-auto gap-2">
+            <Button size="lg" className="w-full sm:w-auto gap-2 bg-stone-900 text-white hover:bg-stone-800 font-bold">
               Bắt đầu bài test
               <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
 
           <Link href="/about" className="w-full sm:w-auto">
-            <Button variant="secondary" size="lg" className="w-full sm:w-auto">
+            <Button variant="secondary" size="lg" className="w-full sm:w-auto text-stone-800 bg-stone-100 border-stone-200 hover:bg-stone-200">
               Tìm hiểu thêm
             </Button>
           </Link>

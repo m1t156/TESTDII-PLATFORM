@@ -61,11 +61,13 @@ function ResultContent() {
   const dimensionGroups = (result.dimensionAnalysis as any)?.groups || result.dimensionAnalysis || {};
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
-      <ResultHero result={result} />
-      <DimensionBreakdown groups={dimensionGroups} />
-      <TopMatches matches={result.topMatches || []} />
-      <ShareBar personalityName={result.mainType.name} result={result} />
+    <div className="bg-[#fafaf8] min-h-screen py-8 transition-colors duration-200">
+      <div className="max-w-4xl mx-auto px-4 space-y-8">
+        <ResultHero result={result} />
+        <DimensionBreakdown groups={dimensionGroups} />
+        <TopMatches matches={result.topMatches || []} />
+        <ShareBar personalityName={result.mainType.name} result={result} />
+      </div>
     </div>
   );
 }
