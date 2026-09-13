@@ -1,4 +1,5 @@
 import { apiClient, getOrCreateGuestId } from "./apiClient";
+import { getWittyProfile } from "@/lib/personalityDescriptions";
 
 export interface QuestionOption {
   optionId: string;
@@ -182,26 +183,46 @@ export const testApi = {
   },
 };
 
+const isLegacyDesc = (desc: string) =>
+  !desc ||
+  desc.includes("Kẻ Thất Bại") ||
+  desc.includes("Người Ngu") ||
+  desc.includes("Kẻ Chết") ||
+  desc.includes("Người Vô Dụng") ||
+  desc.includes("Người Hận Thù") ||
+  desc.includes("Khi Nho") ||
+  desc.includes("Người Ma");
+
 function formatBackendResult(raw: any): SBTIResult {
   if (!raw) throw new Error("Không tìm thấy bản ghi kết quả trong cơ sở dữ liệu.");
 
+  const mainCode = raw.mainType?.code || raw.personalityArchetypeId?.archetypeCode || "BOSS";
+  const mainWitty = getWittyProfile(mainCode);
+
+  const rawMainDesc = raw.mainType?.desc || raw.mainType?.description || raw.personalityArchetypeId?.description;
+  const mainDesc = rawMainDesc && !isLegacyDesc(rawMainDesc) ? rawMainDesc : mainWitty.name;
+
   const mainType: MainTypeResult = {
-    code: raw.mainType?.code || "BOSS",
-    name: raw.mainType?.name || raw.mainType?.type || raw.personalityArchetypeId?.archetypeName || raw.mainType?.code || "Thủ Lĩnh",
-    description: raw.mainType?.desc || raw.mainType?.description || raw.personalityArchetypeId?.description || "Bản lĩnh tiên phong, luôn làm chủ mọi tình huống.",
+    code: mainCode,
+    name: mainWitty.name || raw.mainType?.name || raw.mainType?.type || raw.personalityArchetypeId?.archetypeName || mainCode,
+    description: mainDesc,
     similarityScore: raw.mainType?.score !== undefined ? raw.mainType.score : (raw.matchSimilarityScore ? Math.round(raw.matchSimilarityScore * 100) : 90),
     distance: raw.mainType?.distance ?? 0,
     exact: raw.mainType?.exact ?? false,
   };
 
-  const topMatches: TopMatchResult[] = (raw.topMatches || []).map((m: any) => ({
-    code: m.code,
-    name: m.name || m.type || m.code,
-    description: m.desc || m.description || "",
-    similarityScore: m.score !== undefined ? m.score : (m.similarityScore || 85),
-    distance: m.distance ?? 0,
-    exact: m.exact ?? false,
-  }));
+  const topMatches: TopMatchResult[] = (raw.topMatches || []).map((m: any) => {
+    const matchWitty = getWittyProfile(m.code);
+    const rawMatchDesc = m.desc || m.description;
+    return {
+      code: m.code,
+      name: matchWitty.name || m.name || m.type || m.code,
+      description: rawMatchDesc && !isLegacyDesc(rawMatchDesc) ? rawMatchDesc : matchWitty.name,
+      similarityScore: m.score !== undefined ? m.score : (m.similarityScore || 85),
+      distance: m.distance ?? 0,
+      exact: m.exact ?? false,
+    };
+  });
 
   return {
     sbtiResultId: raw._id || raw.sbtiResultId,

@@ -346,8 +346,8 @@ export function getWittyProfile(code: string): WittyPersonalityProfile {
   const normalizedKey = 
     upper === "ATM" ? "ATMR" :
     upper === "DIOR" ? "DIOR" :
-    upper === "JOKER" || upper === "JOKE-R" ? "JOKER" :
-    upper === "LOVR" || upper === "LOVE-R" ? "LOVR" :
+    upper === "JOKER" || upper === "JOKE-R" || upper === "JOKE" ? "JOKER" :
+    upper === "LOVR" || upper === "LOVE-R" || upper === "LOVE" ? "LOVR" :
     upper === "MUM" ? "MUMM" :
     upper === "OHNO" || upper === "OH-NO" ? "OHNO" :
     upper === "THANK" || upper === "THAN-K" ? "THANK" :

@@ -113,9 +113,11 @@ export const ARCHETYPE_MAP: Record<string, { name: string; title: string; desc: 
   DRUNK: { name: "Thánh Say Ma Thuật", title: "The Mystic Drunk Bear", desc: "Chân thành tuyệt đối khi cởi bỏ lớp phòng thủ, sống hết mình với từng khoảnh khắc.", image: "/characters/DRUNK.png" },
   SOLO: { name: "Độc Hành Huyền Bí", title: "The Lone Wanderer", desc: "Độc lập, kiên định với lối đi riêng, ẩn chứa nội lực thâm sâu.", image: "/characters/SOLO.png" },
   MONK: { name: "Thiền Sĩ Thanh Tịnh", title: "The Wise Sage", desc: "Điềm tĩnh trước sóng gió, cái nhìn bao quát và thấu hiểu quy luật vũ trụ.", image: "/characters/MONK.png" },
-  Dior: { name: "Quý Tộc Sang Chảnh", title: "The Luxury Bear", desc: "Gu thẩm mỹ tinh tế, chuộng sự hoàn hảo và luôn biết tỏa sáng.", image: "/characters/Dior.png" },
+  DIOR: { name: "Quý Tộc Sang Chảnh", title: "The Luxury Bear", desc: "Gu thẩm mỹ tinh tế, chuộng sự hoàn hảo và luôn biết tỏa sáng.", image: "/characters/DIOR.png" },
+  Dior: { name: "Quý Tộc Sang Chảnh", title: "The Luxury Bear", desc: "Gu thẩm mỹ tinh tế, chuộng sự hoàn hảo và luôn biết tỏa sáng.", image: "/characters/DIOR.png" },
   CTRL: { name: "Kiểm Soát Viên Perfect", title: "The Controller", desc: "Kỷ luật thép, tư duy hệ thống mạch lạc, không để sót chi tiết nào.", image: "/characters/CTRL.png" },
   JOKE: { name: "Hề Sĩ Vui Vẻ", title: "The Joker Bear", desc: "Mang lại tiếng cười và năng lượng tích cực ở bất kỳ nơi đâu xuất hiện.", image: "/characters/JOKE-R.png" },
+  JOKER: { name: "Hề Sĩ Vui Vẻ", title: "The Joker Bear", desc: "Mang lại tiếng cười và năng lượng tích cực ở bất kỳ nơi đâu xuất hiện.", image: "/characters/JOKER.png" },
   DEAD: { name: "Chiến Binh Bất Tử", title: "The Undead Fighter", desc: "Kiên cường tái sinh từ nghịch cảnh, không gì có thể quật ngã.", image: "/characters/DEAD.png" },
   ZZZZ: { name: "Ẩn Sĩ Mộng Mơ", title: "The Dreamy Sleeper", desc: "Thích không gian riêng tư, trí tưởng tượng phong phú và tâm hồn thanh bình.", image: "/characters/ZZZZ.png" },
 };

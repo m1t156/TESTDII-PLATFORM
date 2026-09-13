@@ -32,7 +32,7 @@ async function seedDatabase() {
       const [code, archData] = archetypeEntries[i];
       characters.push({
         personalityType: code,
-        name: archData.desc.split(' - ')[0] || code, // e.g., "The Controller"
+        name: archData.desc.split(' — ')[0] || archData.desc.split(' - ')[0] || code, // e.g., "The Controller"
         description: archData.desc,
         baseImage: `/characters/${code}.png`,
         unlockedImage: `/characters/${code}.png`,
@@ -70,7 +70,7 @@ async function seedDatabase() {
 
       archetypes.push({
         testType: 'SBTI',
-        archetypeName: archData.desc.split(' - ')[1]?.trim() || code,
+        archetypeName: archData.desc.split(' — ')[1]?.trim() || archData.desc.split(' - ')[1]?.trim() || code,
         archetypeCode: code,
         dnaTattoo,
         description: archData.desc,
