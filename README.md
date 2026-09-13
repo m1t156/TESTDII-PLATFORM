@@ -2,6 +2,14 @@
 
 > **Nền tảng Trắc nghiệm Tính cách SBTI 15 Chiều Không Gian & 27 Linh Thú Độc Bản**
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-TESTDII%20Platform-emerald?style=for-the-badge&logo=vercel)](https://testdii-platform.vercel.app/)
+[![Next.js 16](https://img.shields.io/badge/Framework-Next.js%2016-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/Language-TypeScript-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+
+🔗 **Trải nghiệm ngay sản phẩm trực tuyến tại:** [https://testdii-platform.vercel.app/](https://testdii-platform.vercel.app/)
+
+---
+
 TESTDII là ứng dụng trắc nghiệm tính cách hiện đại được thiết kế theo phương pháp luận **SBTI (15-Dimension Vector Analysis)**. Ứng dụng cung cấp góc nhìn tâm lý chân thật, sinh động bằng cách phân tích 15 chỉ số độc lập và mã hóa kết quả thành **27 Linh thú độc bản** cùng thẻ sưu tầm cá nhân hóa đa theme cực kỳ ấn tượng.
 
 ![TESTDII Platform Banner](https://raw.githubusercontent.com/m1t156/TESTDII-PLATFORM/main/Testdi_Frontend/public/characters/BOSS.png)
@@ -10,6 +18,7 @@ TESTDII là ứng dụng trắc nghiệm tính cách hiện đại được thi�
 
 ## ✨ Tính Năng Nổi Bật (Key Features)
 
+- 🌐 **Live Online Demo:** Truy cập trực tiếp tại [testdii-platform.vercel.app](https://testdii-platform.vercel.app/) để làm bài test trên điện thoại & máy tính.
 - 🧠 **Thuật toán Phân tích 15 Chiều Không Gian (15-Dimension Vector Engine):** Đo lường chi tiết 5 nhóm mô hình tính cách (*Bản Thân, Cảm Xúc, Thái Độ, Hành Động, Xã Hội*) cùng 15 chỉ số thành phần (S1-S3, E1-E3, A1-A3, AC1-AC3, SO1-SO3).
 - 🐾 **27 Linh Thú Tính Cách Độc Bản (27 Archetype Spirits):** Bộ sưu tập 27 nhân vật linh thú đại diện cho từng ma trận tính cách, kèm phân tích siêu năng lực, huyệt điểm, câu nói cửa miệng và tình huống thực tế.
 - 🎨 **Thẻ Tính Cách Cá Nhân Hóa (Personalized Social Share Cards):** Xuất thẻ kết quả 5 Theme nghệ thuật (*Obsidian Gold, Neon Cyberpunk, Minimal Cream, Crimson Fire, Emerald Mint*).
