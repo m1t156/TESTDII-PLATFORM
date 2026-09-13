@@ -498,7 +498,7 @@ const sbtiQuestionsData = [
   // ====================== BONUS ======================
   {
     testType: 'SBTI',
-    questionText: 'Câu hỏi bonus: Thói quen uống rượu / say xỉn của bạn?',
+    questionText: 'Thói quen uống rượu / say xỉn của bạn?',
     dimension: 'SELF', // placeholder dimension, not used in scoring
     measure: 'S1',     // placeholder measure, not used in scoring
     dimensionIndex: -1, // -1 means bonus, not part of 15-dim vector
@@ -506,9 +506,9 @@ const sbtiQuestionsData = [
     order: 31,
     isBonus: true,
     options: [
-      { text: '0 → Thánh Say - Uống vào là thăng hoa cực độ', points: 1 },
-      { text: '1 → Xã giao - Uống có chừng mực', points: 2 },
-      { text: '2 → Không uống hoặc rất ít', points: 3 },
+      { text: 'Thánh Say - Uống vào là thăng hoa cực độ', points: 1 },
+      { text: 'Xã giao - Uống có chừng mực', points: 2 },
+      { text: 'Không uống hoặc rất ít', points: 3 },
     ],
   },
 ];

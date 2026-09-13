@@ -65,7 +65,7 @@ function ResultContent() {
       <ResultHero result={result} />
       <DimensionBreakdown groups={dimensionGroups} />
       <TopMatches matches={result.topMatches || []} />
-      <ShareBar personalityName={result.mainType.name} />
+      <ShareBar personalityName={result.mainType.name} result={result} />
     </div>
   );
 }

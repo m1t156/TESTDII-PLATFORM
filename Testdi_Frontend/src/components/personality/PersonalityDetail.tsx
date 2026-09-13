@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CharacterItem, getCharacterImageUrl } from "@/api/personalityApi";
 import { getWittyProfile } from "@/lib/personalityDescriptions";
 import { Button } from "@/components/common/Button";
-import { ArrowLeft, PlayCircle, Zap, AlertTriangle, Quote, Lightbulb } from "lucide-react";
+import { ArrowLeft, PlayCircle, Zap, AlertTriangle, Quote, Lightbulb, Sparkles } from "lucide-react";
 
 interface PersonalityDetailProps {
   character: CharacterItem;
@@ -151,6 +151,21 @@ export function PersonalityDetail({ character, code }: PersonalityDetailProps) {
           </p>
         </div>
       </div>
+
+      {/* Real life Example Scenario Card (Full Width) */}
+      {wittyProfile.exampleScenario && (
+        <div className="editorial-card p-6 sm:p-8 bg-gradient-to-br from-amber-50/60 to-orange-50/40 border-amber-200 space-y-3">
+          <div className="flex items-center gap-2.5 text-amber-900">
+            <div className="w-8 h-8 rounded-lg bg-amber-200/80 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-amber-800" />
+            </div>
+            <h3 className="font-bold text-stone-900 text-base sm:text-lg">Ví dụ tình huống thực tế siêu "nhạy"</h3>
+          </div>
+          <p className="text-stone-800 text-sm sm:text-base leading-relaxed bg-white/80 p-4 rounded-xl border border-amber-200/80">
+            {wittyProfile.exampleScenario}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

@@ -14,6 +14,9 @@ import {
   ChevronDown,
   ChevronUp,
   CheckCircle2,
+  MinusCircle,
+  Lightbulb,
+  PlayCircle,
   Sparkles,
 } from "lucide-react";
 
@@ -117,10 +120,26 @@ export function DimensionGroupCard({
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  {/* Detailed Definition & Real Life Example */}
+                  {sub.detailedDefinition && (
+                    <p className="text-stone-700 text-xs sm:text-sm leading-relaxed bg-amber-50/50 p-3 rounded-lg border border-amber-200/60 font-medium flex items-start gap-2">
+                      <Lightbulb className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                      <span><span className="font-bold text-amber-900">Bản chất chỉ số:</span> {sub.detailedDefinition}</span>
+                    </p>
+                  )}
+
+                  {sub.exampleScenario && (
+                    <p className="text-stone-700 text-xs leading-relaxed bg-stone-50 p-3 rounded-lg border border-stone-200/80 flex items-start gap-2">
+                      <PlayCircle className="w-4 h-4 text-stone-600 shrink-0 mt-0.5" />
+                      <span><span className="font-bold text-stone-900">Tình huống ví dụ:</span> {sub.exampleScenario}</span>
+                    </p>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
                     <div className="p-3 rounded-lg bg-stone-50 border border-stone-200/80 space-y-1">
-                      <span className="font-bold text-stone-900 block">
-                        🟢 CHỈ SỐ HIGH (CAO):
+                      <span className="font-bold text-stone-900 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        CHỈ SỐ HIGH (CAO):
                       </span>
                       <p className="text-stone-600 leading-relaxed">
                         {sub.meaningHigh}
@@ -128,8 +147,9 @@ export function DimensionGroupCard({
                     </div>
 
                     <div className="p-3 rounded-lg bg-stone-50 border border-stone-200/80 space-y-1">
-                      <span className="font-bold text-stone-900 block">
-                        ⚪ CHỈ SỐ LOW (THẤP):
+                      <span className="font-bold text-stone-900 flex items-center gap-1.5">
+                        <MinusCircle className="w-3.5 h-3.5 text-stone-500" />
+                        CHỈ SỐ LOW (THẤP):
                       </span>
                       <p className="text-stone-600 leading-relaxed">
                         {sub.meaningLow}

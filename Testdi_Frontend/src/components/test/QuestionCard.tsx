@@ -28,17 +28,14 @@ export function QuestionCard({
   isLast,
   isSubmitting = false,
 }: QuestionCardProps) {
+  const displayQuestionText = (question.questionText || "").replace(/^Câu hỏi bonus:\s*/i, "");
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
       {/* Progress header */}
       <div className="space-y-2">
         <div className="flex justify-between items-center text-xs font-semibold tracking-wider text-stone-500 uppercase">
           <span>CÂU HỎI {String(currentIndex + 1).padStart(2, "0")} / {String(totalQuestions).padStart(2, "0")}</span>
-          {question.isBonus && (
-            <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold text-[10px]">
-              CÂU HỎI ĐẶC BIỆT 🍻
-            </span>
-          )}
         </div>
         <ProgressBar current={currentIndex + 1} total={totalQuestions} showText={false} />
       </div>
@@ -48,7 +45,7 @@ export function QuestionCard({
         {/* Question Text */}
         <div className="space-y-3">
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-stone-900 leading-snug">
-            {question.questionText}
+            {displayQuestionText}
           </h2>
           <p className="text-xs text-stone-500">
             Chọn câu trả lời gần nhất với tính cách tự nhiên của bạn.
@@ -59,19 +56,20 @@ export function QuestionCard({
         <div className="space-y-3 my-6">
           {question.options.map((option) => {
             const isSelected = selectedOptionId === option.optionId;
+            const displayOptionText = option.text.replace(/^[0-9]\s*(→|-)\s*/, "");
             return (
               <button
                 key={option.optionId}
                 type="button"
                 onClick={() => onSelectOption(option)}
-                className={`w-full text-left p-4 sm:p-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 ${
+                className={`w-full text-left p-4 sm:p-5 rounded-xl border transition-all flex items-center justify-between gap-4 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-stone-900 active:scale-[0.98] ${
                   isSelected
                     ? "bg-stone-900 text-white border-stone-900 shadow-sm"
                     : "bg-stone-50/50 text-stone-800 border-stone-200 hover:border-stone-300 hover:bg-stone-100/60"
                 }`}
               >
                 <span className="text-sm sm:text-base font-medium leading-relaxed">
-                  {option.text}
+                  {displayOptionText}
                 </span>
                 <div
                   className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-colors ${

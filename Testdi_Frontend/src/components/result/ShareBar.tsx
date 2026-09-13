@@ -2,14 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { SBTIResult } from "@/api/testApi";
+import { PersonalizedShareCard } from "@/components/result/PersonalizedShareCard";
 import { Button } from "@/components/common/Button";
 import { Share2, Copy, Check, RotateCcw } from "lucide-react";
 
 interface ShareBarProps {
   personalityName: string;
+  result?: SBTIResult;
 }
 
-export function ShareBar({ personalityName }: ShareBarProps) {
+export function ShareBar({ personalityName, result }: ShareBarProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = () => {
@@ -37,31 +40,41 @@ export function ShareBar({ personalityName }: ShareBarProps) {
   };
 
   return (
-    <div className="editorial-card p-6 sm:p-8 bg-white text-center space-y-4">
-      <h3 className="text-lg font-bold text-stone-900">
-        Chia sẻ hoặc làm lại bài test
-      </h3>
-      <p className="text-sm text-stone-500 max-w-md mx-auto">
-        Lưu giữ kết quả tính cách độc bản của bạn hoặc chia sẻ với bạn bè để so sánh sự tương thích.
-      </p>
+    <div className="space-y-6">
+      {/* Personalized Share Card section if result object is available */}
+      {result && <PersonalizedShareCard result={result} />}
 
-      <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-        <Button variant="outline" onClick={handleCopyLink} className="gap-2">
-          {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-          {copied ? "Đã sao chép link!" : "Sao chép liên kết"}
-        </Button>
+      {/* Retake Test & Quick Share Bar */}
+      <div className="editorial-card p-6 sm:p-8 bg-white text-center space-y-4">
+        <h3 className="text-lg font-bold text-stone-900">
+          Tùy chọn bổ sung & Thử lại
+        </h3>
+        <p className="text-sm text-stone-500 max-w-md mx-auto">
+          Bạn muốn làm lại bài test để kiểm tra lại các chỉ số hoặc thử nghiệm các câu trả lời khác?
+        </p>
 
-        <Button variant="secondary" onClick={handleWebShare} className="gap-2">
-          <Share2 className="w-4 h-4" />
-          Chia sẻ kết quả
-        </Button>
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          {!result && (
+            <>
+              <Button variant="outline" onClick={handleCopyLink} className="gap-2">
+                {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                {copied ? "Đã sao chép link!" : "Sao chép liên kết"}
+              </Button>
 
-        <Link href="/test">
-          <Button variant="primary" className="gap-2">
-            <RotateCcw className="w-4 h-4" />
-            Làm lại bài test
-          </Button>
-        </Link>
+              <Button variant="secondary" onClick={handleWebShare} className="gap-2">
+                <Share2 className="w-4 h-4" />
+                Chia sẻ kết quả
+              </Button>
+            </>
+          )}
+
+          <Link href="/test">
+            <Button variant="primary" className="gap-2">
+              <RotateCcw className="w-4 h-4" />
+              Làm lại bài test
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );
