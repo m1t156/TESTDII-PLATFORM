@@ -17,6 +17,7 @@ import {
   Palette,
   X,
   Info,
+  ExternalLink,
 } from "lucide-react";
 
 interface PersonalizedShareCardProps {
@@ -173,8 +174,18 @@ export function PersonalizedShareCard({ result }: PersonalizedShareCardProps) {
   const [base64Image, setBase64Image] = useState<string>("");
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
   const [previewImageUrl, setPreviewImageUrl] = useState<string>("");
+  const [previewBlobUrl, setPreviewBlobUrl] = useState<string>("");
 
   const code = result?.mainType?.code || "BOSS";
+
+  // Cleanup Blob URL when modal closes or unmounts to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (previewBlobUrl && previewBlobUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(previewBlobUrl);
+      }
+    };
+  }, [previewBlobUrl]);
 
   // Memoize profile & image URL for performance
   const wittyProfile = useMemo(() => getWittyProfile(code), [code]);
@@ -245,68 +256,71 @@ export function PersonalizedShareCard({ result }: PersonalizedShareCardProps) {
     });
   }, [result]);
 
-  // Helper function to generate clean PNG file from Card element
-  const generateCardPng = async (): Promise<{ dataUrl: string; blob: Blob; file: File }> => {
+  // Optimized function to generate PNG blob safely without hanging Android UI thread
+  const generateCardPng = async (): Promise<{ dataUrl: string; blob: Blob; file: File; blobUrl: string }> => {
     if (!cardRef.current) throw new Error("Card element not ready");
-    const { toPng } = await import("html-to-image");
+    const { toBlob, toPng } = await import("html-to-image");
 
-    const dataUrl = await toPng(cardRef.current, {
-      quality: 1,
-      cacheBust: true,
-      pixelRatio: 2.5,
-    });
+    const isMobile =
+      typeof window !== "undefined" &&
+      /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    const res = await fetch(dataUrl);
-    const blob = await res.blob();
+    // On mobile devices, lower pixelRatio (1.5) avoids heavy main-thread freezes & RAM overload
+    const targetPixelRatio = isMobile ? 1.5 : 2.0;
+
+    let blob: Blob | null = null;
+    try {
+      blob = await toBlob(cardRef.current, {
+        quality: 0.95,
+        cacheBust: true,
+        pixelRatio: targetPixelRatio,
+      });
+    } catch {
+      const dataUrl = await toPng(cardRef.current, {
+        quality: 0.95,
+        cacheBust: true,
+        pixelRatio: targetPixelRatio,
+      });
+      const res = await fetch(dataUrl);
+      blob = await res.blob();
+    }
+
+    if (!blob) throw new Error("Failed to generate image blob");
+
+    const blobUrl = URL.createObjectURL(blob);
     const file = new File([blob], `TESTDII_${code}_${activeTheme.id}.png`, { type: "image/png" });
 
-    return { dataUrl, blob, file };
+    return { dataUrl: blobUrl, blob, file, blobUrl };
   };
 
-  // Handle PNG Image Download (Multi-tier: Native Web Share -> Preview Lightbox -> Direct Download)
+  // Handle PNG Image Download (Android direct save-to-gallery support)
   const handleDownloadImage = async () => {
     if (!cardRef.current) return;
     setDownloading(true);
     try {
-      const { dataUrl, blob, file } = await generateCardPng();
+      const { file, blobUrl } = await generateCardPng();
 
       const isMobile =
         typeof window !== "undefined" &&
         /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-      // On Mobile: Try Web Share API (which natively shows "Save to Photos/Gallery" on iOS & Android)
-      if (
-        isMobile &&
-        typeof navigator !== "undefined" &&
-        navigator.canShare &&
-        navigator.canShare({ files: [file] })
-      ) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: `TESTDII — ${wittyProfile.name}`,
-            text: `Kết quả tính cách của tôi: ${wittyProfile.name}! Khám phá linh thú của bạn tại TESTDII:`,
-            url: window.location.href,
-          });
-          setDownloading(false);
-          return;
-        } catch (shareErr) {
-          // Fallback to preview lightbox if user cancels or share is blocked
-        }
+      // Clean up previous blob URL if exists
+      if (previewBlobUrl && previewBlobUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(previewBlobUrl);
       }
 
-      // On Mobile (or if share fallback): Show Mobile Preview Lightbox Modal
+      setPreviewBlobUrl(blobUrl);
+      setPreviewImageUrl(blobUrl);
+
       if (isMobile) {
-        setPreviewImageUrl(dataUrl);
+        // On Mobile (Android / iOS): Open Lightbox Modal immediately so users can long-press to save straight to Gallery
         setPreviewModalOpen(true);
       } else {
         // Desktop: Direct Blob URL download
-        const blobUrl = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.download = `TESTDII_${code}_${activeTheme.id}.png`;
         link.href = blobUrl;
         link.click();
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
       }
     } catch (err) {
       console.error("Failed to generate image card:", err);
@@ -331,24 +345,32 @@ export function PersonalizedShareCard({ result }: PersonalizedShareCardProps) {
     setDownloading(true);
     try {
       if (cardRef.current) {
-        const { dataUrl, file } = await generateCardPng();
+        const { file, blobUrl } = await generateCardPng();
 
         if (
           typeof navigator !== "undefined" &&
           navigator.canShare &&
           navigator.canShare({ files: [file] })
         ) {
-          await navigator.share({
-            files: [file],
-            title: `TESTDII — ${wittyProfile.name}`,
-            text: `Tôi vừa làm bài test tính cách SBTI và thuộc nhóm ${wittyProfile.name}! Thử ngay tại:`,
-            url: window.location.href,
-          });
-          return;
+          try {
+            await navigator.share({
+              files: [file],
+              title: `TESTDII — ${wittyProfile.name}`,
+              text: `Tôi vừa làm bài test tính cách SBTI và thuộc nhóm ${wittyProfile.name}! Thử ngay tại:`,
+              url: window.location.href,
+            });
+            return;
+          } catch {
+            // User cancelled or share blocked, fallback to preview lightbox modal
+          }
         }
 
         // Fallback: Open preview modal for in-app browsers like Zalo / Facebook WebView
-        setPreviewImageUrl(dataUrl);
+        if (previewBlobUrl && previewBlobUrl.startsWith("blob:")) {
+          URL.revokeObjectURL(previewBlobUrl);
+        }
+        setPreviewBlobUrl(blobUrl);
+        setPreviewImageUrl(blobUrl);
         setPreviewModalOpen(true);
       } else {
         handleCopyLink();
@@ -556,12 +578,12 @@ export function PersonalizedShareCard({ result }: PersonalizedShareCardProps) {
       {/* Mobile Image Preview Lightbox Modal */}
       {previewModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
-          <div className="bg-stone-900 text-white border border-stone-800 rounded-3xl max-w-md w-full p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-stone-900 text-white border border-stone-800 rounded-3xl max-w-md w-full p-5 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-stone-800 pb-3">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-amber-400" />
-                <h3 className="font-bold text-base text-white">Ảnh Card HD (Sẵn sàng lưu)</h3>
+                <h3 className="font-bold text-base text-white">Ảnh Card HD (Bộ sưu tập)</h3>
               </div>
               <button
                 onClick={() => setPreviewModalOpen(false)}
@@ -571,38 +593,63 @@ export function PersonalizedShareCard({ result }: PersonalizedShareCardProps) {
               </button>
             </div>
 
-            {/* Guide Banner for iPhone & Android */}
-            <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs leading-relaxed flex items-start gap-2">
-              <Info className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
-              <span>
-                <strong>Lưu vào Thư viện (Bộ sưu tập):</strong> Bấm và <strong>nhấn giữ 1 giây</strong> vào bức ảnh bên dưới, sau đó chọn <strong>"Lưu hình ảnh"</strong> (Save Image) hoặc <strong>"Tải ảnh về máy"</strong>.
-              </span>
+            {/* Detailed Guide Banner for Android & iPhone */}
+            <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs leading-relaxed space-y-1.5">
+              <div className="flex items-center gap-2 font-bold text-amber-400">
+                <Info className="w-4 h-4 shrink-0 text-amber-400" />
+                <span>Cách lưu trực tiếp vào Bộ sưu tập (Gallery):</span>
+              </div>
+              <ul className="list-disc pl-5 space-y-1 text-stone-300 text-[11px]">
+                <li>
+                  <strong className="text-amber-300">Cách 1 (Nhanh nhất):</strong> Chạm và <strong className="text-white">nhấn giữ 1-2 giây</strong> vào bức ảnh phía dưới ➔ chọn <strong className="text-white">"Lưu hình ảnh"</strong> (Save Image).
+                </li>
+                <li>
+                  <strong className="text-amber-300">Cách 2:</strong> Bấm nút <strong className="text-white">"Mở ảnh ở trang riêng"</strong> phía dưới ➔ Nhấn giữ hoặc bấm menu trình duyệt để lưu thẳng vào Gallery.
+                </li>
+              </ul>
             </div>
 
-            {/* High-Res Image Preview */}
-            <div className="flex justify-center p-2 bg-black/40 rounded-2xl border border-stone-800 overflow-hidden">
+            {/* High-Res Image Preview with long-press support */}
+            <div className="flex flex-col items-center justify-center p-2 bg-black/50 rounded-2xl border border-stone-800 relative group">
               <img
                 src={previewImageUrl}
                 alt={`TESTDII ${code} Card`}
-                className="w-full max-w-[320px] rounded-xl object-contain shadow-lg"
+                className="w-full max-w-[320px] rounded-xl object-contain shadow-2xl transition-transform active:scale-[0.99]"
               />
+              <span className="text-[10px] font-medium text-stone-400 mt-2 flex items-center gap-1">
+                👇 Chạm & nhấn giữ 1s vào ảnh trên để lưu
+              </span>
             </div>
 
             {/* Actions inside Modal */}
-            <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
+            <div className="flex flex-col gap-2 pt-1">
               <a
                 href={previewImageUrl}
-                download={`TESTDII_${code}_${activeTheme.id}.png`}
-                className="w-full text-center py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-sm transition shadow-sm"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full text-center py-3 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-sm transition shadow-md flex items-center justify-center gap-2"
               >
-                Tải xuống trực tiếp
+                <ExternalLink className="w-4 h-4" />
+                Mở ảnh ở trang riêng (để nhấn giữ lưu)
               </a>
-              <button
-                onClick={() => setPreviewModalOpen(false)}
-                className="w-full py-3 px-4 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold text-sm transition"
-              >
-                Đóng cửa sổ
-              </button>
+
+              <div className="flex items-center gap-2">
+                <a
+                  href={previewImageUrl}
+                  download={`TESTDII_${code}_${activeTheme.id}.png`}
+                  className="flex-1 text-center py-2.5 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 font-semibold text-xs transition border border-stone-700/80 flex items-center justify-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  Tải về Tệp
+                </a>
+
+                <button
+                  onClick={() => setPreviewModalOpen(false)}
+                  className="flex-1 py-2.5 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-semibold text-xs transition border border-stone-700/80"
+                >
+                  Đóng cửa sổ
+                </button>
+              </div>
             </div>
           </div>
         </div>
