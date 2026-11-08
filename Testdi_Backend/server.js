@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const mongoose = require('mongoose');
 const { connectDB } = require('./config/database');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
@@ -36,9 +37,25 @@ app.use(express.urlencoded({ extended: true }));
 const trackPageView = require('./middleware/trackPageView');
 app.use(trackPageView);
 
-// Health check endpoint
+// Root endpoint for status check & keep-alive
+app.get('/', (req, res) => {
+  const isDbConnected = mongoose.connection.readyState === 1;
+  res.json({
+    name: 'Testdi Backend API',
+    status: isDbConnected ? 'healthy' : 'degraded',
+    database: isDbConnected ? 'connected' : 'disconnected',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Health check endpoint (for Render / cronjob keep-alive)
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date().toISOString() });
+  const isDbConnected = mongoose.connection.readyState === 1;
+  res.status(isDbConnected ? 200 : 503).json({
+    status: isDbConnected ? 'OK' : 'DEGRADED',
+    database: isDbConnected ? 'connected' : 'disconnected',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Static files (uploaded images)

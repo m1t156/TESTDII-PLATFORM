@@ -2,6 +2,19 @@ const mongoose = require('mongoose');
 
 let mongod = null;
 
+// Theo dõi trạng thái kết nối MongoDB để dễ debug trên Render
+mongoose.connection.on('connected', () => {
+  console.log(`✅ MongoDB connected successfully to: ${mongoose.connection.host || 'cluster'}`);
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('❌ MongoDB runtime error:', err.message);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️ MongoDB disconnected');
+});
+
 const syncArchetypes = async () => {
   try {
     const PersonalityArchetype = require('../models/PersonalityArchetype');
@@ -81,15 +94,30 @@ const seedIfEmpty = async () => {
 
 const connectDB = async () => {
   const mongoUri = process.env.MONGODB_URI || process.env.MONGODB_URI_LOCAL || 'mongodb://127.0.0.1:27017/testdi_db';
+  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.RENDER;
+
+  const mongooseOptions = {
+    serverSelectionTimeoutMS: 15000, // Tăng thời gian chờ lên 15 giây để tránh timeout trên Cloud
+    connectTimeoutMS: 15000,
+  };
 
   try {
-    // Attempt connecting to local / cloud MongoDB with short timeout
-    await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 2000 });
-    console.log(`✅ MongoDB Service connected: ${mongoose.connection.host}`);
+    console.log(`⏳ Đang kết nối tới MongoDB...`);
+    await mongoose.connect(mongoUri, mongooseOptions);
     await seedIfEmpty();
     return mongoose.connection;
   } catch (error) {
-    console.log(`ℹ️  Không tìm thấy dịch vụ MongoDB chạy tại ${mongoUri}. Đang tự động kích hoạt In-Memory MongoDB...`);
+    const maskedUri = mongoUri.replace(/:([^:@]+)@/, ':****@');
+    console.error(`❌ Kết nối MongoDB thất bại (${maskedUri}):`, error.message);
+
+    // Môi trường Production / Render: KHÔNG fallback sang MongoMemoryServer vì sẽ gây crash/OOM
+    if (isProduction) {
+      console.error('🚨 [Production / Render] Không thể kết nối MongoDB Atlas. Vui lòng kiểm tra IP Whitelist (0.0.0.0/0) và chuỗi MONGODB_URI.');
+      throw error;
+    }
+
+    // Môi trường Local Development: Thử dùng MongoMemoryServer nếu có cài đặt
+    console.log(`ℹ️ Đang kích hoạt In-Memory MongoDB dự phòng cho Local Development...`);
     try {
       const { MongoMemoryServer } = require('mongodb-memory-server');
       mongod = await MongoMemoryServer.create();
@@ -99,8 +127,8 @@ const connectDB = async () => {
       await seedIfEmpty();
       return mongoose.connection;
     } catch (memError) {
-      console.error('Failed to start In-Memory MongoDB:', memError);
-      process.exit(1);
+      console.error('Failed to start In-Memory MongoDB:', memError.message);
+      throw error;
     }
   }
 };
